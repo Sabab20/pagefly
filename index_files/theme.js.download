@@ -1,0 +1,83 @@
+$( document ).ready( function () {
+  $('.sticky-banner').stick_in_parent({offset_top:82});
+  
+  $(window).scroll(function() {
+    scroll = $(window).scrollTop();
+
+    if ( scroll > 0 ) { 
+      $('body').addClass('header-sticky');
+    } else { 
+      $('body').removeClass('header-sticky');
+    }
+  });
+  $( 'body' ).on( 'click', '.search a', function( e ) {
+    e.preventDefault();
+    $( '.search-form-global' ).toggleClass( 'opened' );
+    $( '.search__text' ).focus();
+  });
+
+  $( 'body' ).on( 'touchstart', '.nav__mobile', function( e ) {
+    $(this).toggleClass('open');
+    $('.nav').toggleClass('nav__open');
+
+    $('body').toggleClass('modalOpened');
+    e.preventDefault();
+  });
+
+  $( 'body' ).on( 'click', '.mobile-cat', function( e ) {
+    e.preventDefault();
+
+    $(this).next().slideToggle();
+  });
+
+  $( 'body' ).on( 'click', '.btn--install, .btn-try-pf', function( e ) {
+    var installURL = 'https://pagefly.io/pages/install',
+        trialDay   = $(this).attr('data-trial'),
+        actionURL  = $(this).attr('data-link'),
+        parentPage = $(this).attr('data-page');
+
+    $.get( installURL, function( response ) {
+      $.magnificPopup.open({
+        items: {
+          src: response,
+          type: 'inline'
+        },
+        mainClass: 'mfp-fade',
+        removalDelay: 160,
+        callbacks: {
+          open: function() {
+            var shopName   = $( '.shop-name' ),
+                form       = $( '.install form' ),
+                installBTN = $( '.btn-install-app' ),
+                path       = $( 'body' ).attr( 'data-path' );
+
+            $('.underline span').text( trialDay );
+            $( '.install form' ).attr( 'action', actionURL );
+            
+            $('.shopify-ref').attr('href', 'https://www.shopify.ca/?ref=pagefly&utm_campaign=new%20merchant&utm_source=pagefly&utm_medium='+ path +'&subid2=modal')
+
+//             if ( trialDay.length > 0 ) {
+//               document.querySelector( '#trial_day' ).value = trialDay
+//             }
+            shopName.on('input', function() {
+              if ( shopName.val() === '' ) {
+                form.removeClass( 'has-val' );
+              } else {
+                form.addClass( 'has-val' );
+              }
+            });
+            $( '.btn-install-app' ).click(function(e) {
+              ga('send', 'event', 'Main site', 'Install PageFly', 'Go to listing');
+              if ( shopName.val() !== '' ) {
+                shopName.removeClass( 'has-val' );
+                document.querySelector( '#shop_name' ).value = shopName.val() + '.myshopify.com';
+                form.submit();
+              }
+            });
+          }
+        }
+      });
+    });
+    e.preventDefault();
+  }); 
+});
